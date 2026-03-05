@@ -11,7 +11,18 @@
         .mono { font-family: 'JetBrains Mono', monospace; }
         .timeline-line { position: absolute; left: 50%; width: 4px; height: 100%; background: linear-gradient(to bottom, #1e293b, #3b82f6, #ec4899, #1e293b); transform: translateX(-50%); z-index: 0; }
         .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .portrait { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; border: 1px solid #334155; }
+        .portrait { 
+    width: 100%; 
+    max-width: 200px; /* Limits width so it doesn't get too bulky on wide screens */
+    height: 240px;    /* Fixed height for all images for a clean alignment */
+    object-fit: cover; 
+    object-position: top; /* Ensures faces aren't cut off in tall portraits */
+    border-radius: 12px; 
+    border: 2px solid #334155; 
+    background: #1e293b; 
+    display: block;
+    margin: 0 auto;   /* Centers the image in its column */
+}
         .sim-box { width: 100%; height: 320px; background: #000; border-radius: 12px; border: 2px solid #1e293b; position: relative; overflow: hidden; }
         canvas { width: 100%; height: 100%; display: block; }
         
@@ -42,15 +53,72 @@
 
     <script>
         const activeSims = {};
+        // Using direct, non-Wikipedia sources to bypass hotlink protection
         const data = [
-            { id: 'newton', name: 'Isaac Newton', year: '1704', img: 'https://en.wikipedia.org/wiki/Isaac_Newton#/media/File%3APortrait_of_Sir_Isaac_Newton%2C_1689_(brightened).jpg', theoryEn: 'Light is made of tiny, hard particles called "corpuscles" that travel in straight lines.', theoryBm: 'Cahaya terdiri daripada zarah kecil dan keras dipanggil "korpuskel" yang bergerak lurus.' },
-            { id: 'young', name: 'Thomas Young', year: '1801', img: 'https://en.wikipedia.org/wiki/Thomas_Young_(scientist)#/media/File%3AThomas_Young_by_Briggs_cropped.jpg', theoryEn: 'Light is a wave. Overlapping waves from two slits create Bright (constructive) and Dark (destructive) fringes.', theoryBm: 'Cahaya ialah gelombang. Gelombang bertindih dari dua celah menghasilkan pinggir Terang (membina) dan Gelap (memusnah).' },
-            { id: 'dalton', name: 'John Dalton', year: '1803', img: 'https://en.wikipedia.org/wiki/John_Dalton#/media/File%3AJohn_Dalton_by_Thomas_Phillips%2C_1835.jpg', theoryEn: 'The atom is an indivisible, solid sphere. All matter is made of these building blocks.', theoryBm: 'Atom ialah sfera pepejal yang tidak boleh dibahagi. Semua jirim terdiri daripada blok binaan ini.' },
-            { id: 'thomson', name: 'J.J. Thomson', year: '1897', img: 'https://en.wikipedia.org/wiki/J._J._Thomson#/media/File%3AJ.J_Thomson.jpg', theoryEn: 'Discovered the electron. The atom is a positive sphere with embedded negative electrons.', theoryBm: 'Menemui elektron. Atom ialah sfera positif dengan elektron negatif terbenam di dalamnya.' },
-            { id: 'planck', name: 'Max Planck', year: '1900', img: 'https://en.wikipedia.org/wiki/Max_Planck#/media/File%3AMax_Planck_by_Hugo_Erfurth_1938cr_-_restoration1.jpg', theoryEn: 'Energy is not continuous but emitted in discrete packets called Quanta (E=hf).', theoryBm: 'Tenaga tidak berterusan tetapi dipancarkan dalam paket diskrit dipanggil Kuantum.' },
-            { id: 'einstein', name: 'Albert Einstein', year: '1905', img: 'https://en.wikipedia.org/wiki/File:Albert_Einstein_Head_cleaned.jpg', theoryEn: 'Explained the Photoelectric Effect. Light acts as photons that can knock electrons off metal.', theoryBm: 'Menerangkan Kesan Fotoelektrik. Cahaya bertindak sebagai foton yang boleh mengeluarkan elektron.' },
-            { id: 'bohr', name: 'Niels Bohr', year: '1913', img: 'https://en.wikipedia.org/wiki/Niels_Bohr#/media/File%3ANiels_Bohr.jpg', theoryEn: 'Electrons travel in fixed, circular orbits (energy levels) around the nucleus.', theoryBm: 'Elektron bergerak dalam orbit bulat yang tetap (tahap tenaga) di sekeliling nukleus.' },
-            { id: 'debroglie', name: 'Louis De Broglie', year: '1924', img: 'https://en.wikipedia.org/wiki/Louis_de_Broglie#/media/File%3ABroglie_Big.jpg', theoryEn: 'Proposed matter waves. Electrons passing through a gap show a diffraction pattern on a detector.', theoryBm: 'Mencadangkan gelombang jirim. Elektron melalui celah sempit menunjukkan corak belauan pada pengesan.' }
+            { 
+                id: 'newton', 
+                name: 'Isaac Newton', 
+                year: '1704', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/Portrait_of_Sir_Isaac_Newton%2C_1689_(brightened).jpg', 
+                theoryEn: '<b>Corpuscular Theory:</b> Light consists of tiny, discrete particles (corpuscles). Explained reflection as elastic bounces and refraction as acceleration into denser media. Restricted by lack of wave explanation.', 
+                theoryBm: '<b>Teori Korpuskel:</b> Cahaya terdiri daripada zarah halus dan diskrit (korpuskel). Menerangkan pantulan sebagai lantunan elastik dan pembiasan sebagai pecutan ke dalam medium lebih tumpat.' 
+            },
+            { 
+                id: 'young', 
+                name: 'Thomas Young', 
+                year: '1801', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/Thomas_Young_by_Briggs_cropped.jpg', 
+                theoryEn: '<b>Wave Theory:</b> Proved light is a wave via the Double-Slit experiment. Established the principle of <i>interference</i> where path difference determines constructive (Bright) or destructive (Dark) fringes.', 
+                theoryBm: '<b>Teori Gelombang:</b> Membuktikan cahaya adalah gelombang melalui eksperimen Dwi-Celah. Menetapkan prinsip <i>interferens</i> di mana perbezaan laluan menentukan pinggir membina (Terang) atau memusnah (Gelap).' 
+            },
+            { 
+                id: 'dalton', 
+                name: 'John Dalton', 
+                year: '1803', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/gettyimages-113444311.jpg', 
+                theoryEn: '<b>Billiard Ball Model:</b> Atoms are indivisible, indestructible spheres. Different elements have different masses. This formed the basis of modern stoichiometry and chemical identity.', 
+                theoryBm: '<b>Model Bola Biliard:</b> Atom adalah sfera yang tidak boleh dibahagi dan tidak boleh dimusnahkan. Unsur berbeza mempunyai jisim yang berbeza.' 
+            },
+            { 
+                id: 'thompson', 
+                name: 'J.J. Thompson', 
+                year: '1897', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/J.J_Thomson.jpg', 
+                theoryEn: '<b>Plum Pudding Model:</b> Discovered the electron using cathode rays. Proposed atoms are positive spheres with embedded negative electrons, proving atoms are actually divisible.', 
+                theoryBm: '<b>Model Puding Palam:</b> Menemui elektron menggunakan sinar katod. Mencadangkan atom adalah sfera positif dengan elektron negatif terbenam, membuktikan atom boleh dibahagi.' 
+            },
+            { 
+                id: 'planck', 
+                name: 'Max Planck', 
+                year: '1900', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/Max_Planck_by_Hugo_Erfurth_1938cr_-_restoration1.jpg', 
+                theoryEn: '<b>Quantum Hypothesis:</b> Energy is not continuous but emitted in discrete "quanta". Introduced Planck\'s Constant ($h$) with the formula $E = hf$. This solved the Blackbody Radiation/Ultraviolet Catastrophe.', 
+                theoryBm: '<b>Hipotesis Kuantum:</b> Tenaga tidak berterusan tetapi dipancarkan dalam "kuanta" diskrit. Memperkenalkan Pemalar Planck ($h$) dengan formula $E = hf$.' 
+            },
+            { 
+                id: 'einstein', 
+                name: 'Albert Einstein', 
+                year: '1905', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/Albert_Einstein_Head_cleaned.jpg', 
+                theoryEn: '<b>Photoelectric Effect:</b> Light energy is carried in "photons". If photon energy ($hf$) exceeds the work function ($\Phi$), electrons are emitted with Max Kinetic Energy: $K_{max} = hf - \Phi$.', 
+                theoryBm: '<b>Kesan Fotoelektrik:</b> Tenaga cahaya dibawa dalam "foton". Jika tenaga foton ($hf$) melebihi fungsi kerja ($\Phi$), elektron dipancarkan dengan Tenaga Kinetik Maksimum.' 
+            },
+            { 
+                id: 'bohr', 
+                name: 'Niels Bohr', 
+                year: '1913', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/Niels_Bohr.jpg', 
+                theoryEn: '<b>Quantized Orbits:</b> Electrons move in specific circular orbits without radiating energy. Radiation occurs only during transitions between levels: $\Delta E = E_2 - E_1 = hf$.', 
+                theoryBm: '<b>Orbit Terkuantum:</b> Elektron bergerak dalam orbit bulat tertentu tanpa memancarkan tenaga. Sinaran hanya berlaku semasa peralihan antara tahap tenaga.' 
+            },
+            { 
+                id: 'debroglie', 
+                name: 'Louis De Broglie', 
+                year: '1924', 
+                img: 'https://raw.githubusercontent.com/yusufwan94-boop/QP-YD-IMAGE/main/Broglie_Big.jpg', 
+                theoryEn: '<b>Wave-Particle Duality:</b> Proposed that moving particles exhibit wave characteristics. The de Broglie wavelength is $\lambda = \frac{h}{p} = \frac{h}{mv}$. This unified the wave and particle nature of matter.', 
+                theoryBm: '<b>Dualiti Zarah-Gelombang:</b> Mencadangkan zarah yang bergerak menunjukkan ciri gelombang. Panjang gelombang de Broglie ialah $\lambda = \frac{h}{p} = \frac{h}{mv}$.' 
+            }
         ];
 
         const container = document.getElementById('segments-container');
@@ -60,7 +128,7 @@
                 <div class="relative z-10 grid md:grid-cols-12 gap-8 mb-40 items-start">
                     <div class="md:col-span-3 text-center ${isEven ? '' : 'md:order-3'}">
                         <h3 class="text-3xl font-black mb-2">${item.name}</h3>
-                        <img src="${item.img}" class="portrait mb-2" alt="${item.name}">
+                        <img src="${item.img}" class="portrait mb-2" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x400/1e293b/f8fafc?text=Founder+Image'">
                         <div class="mono text-blue-500 font-black text-xl">${item.year}</div>
                     </div>
                     <div class="md:col-span-4 glass-card p-6 rounded-3xl ${isEven ? '' : 'md:order-2'}">
@@ -120,14 +188,12 @@
                 
                 if(id === 'young') {
                     const s1y = canvas.height/2 - 25, s2y = canvas.height/2 + 25;
-                    // Waves
                     ctx.globalCompositeOperation = 'lighter';
                     for(let r=0; r<canvas.width-50; r+=25) {
                         ctx.strokeStyle = `rgba(34, 211, 238, ${0.4 - r/canvas.width})`;
                         ctx.beginPath(); ctx.arc(30, s1y, (r + frame)%canvas.width, -Math.PI/2, Math.PI/2); ctx.stroke();
                         ctx.beginPath(); ctx.arc(30, s2y, (r + frame)%canvas.width, -Math.PI/2, Math.PI/2); ctx.stroke();
                     }
-                    // Interference Fringe Screen (Right side)
                     ctx.globalCompositeOperation = 'source-over';
                     for(let y=0; y<canvas.height; y++) {
                         let d1 = Math.sqrt(Math.pow(canvas.width-40, 2) + Math.pow(y-s1y, 2));
@@ -174,19 +240,16 @@
                 }
 
                 if(id === 'debroglie') {
-                    // Diffraction Simulation
                     if(frame % 2 === 0) dbParticles.push({x: 0, y: canvas.height/2 + (Math.random()-0.5)*10, angle: (Math.random()-0.5)*0.1});
                     dbParticles.forEach((p, i) => {
                         p.x += 4;
-                        if(p.x > 60) { // Gap logic: electron "waves" through the gap
-                            let diff = (Math.tan(Math.asin(Math.sin(p.angle) || 0.01))) * (p.x - 60);
-                            // Apply a probability distribution (Gaussian-like)
+                        if(p.x > 60) { 
                             if(!p.fixedAngle) p.fixedAngle = (Math.tan((Math.random()-0.5) * 1.5));
                             p.y += p.fixedAngle * 2;
                         }
                         ctx.fillStyle = 'rgba(236, 72, 153, 0.8)';
                         ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI*2); ctx.fill();
-                        if(p.x > canvas.width - 40) { // Hit detector
+                        if(p.x > canvas.width - 40) { 
                             ctx.fillStyle = 'rgba(236, 72, 153, 0.2)';
                             ctx.fillRect(canvas.width-30, p.y-5, 15, 10);
                             dbParticles.splice(i, 1);
