@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optics Applications: Periscope & Kaleidoscope</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <!-- Title -->
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg border border-indigo-500/30">
+          <i data-lucide="infinity" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+            <span id="txt-title">Mirror Applications Lab</span>
+            <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-medium">KSSM Physics</span>
+          </h1>
+          <p class="text-xs text-slate-400" id="txt-subtitle">Interactive Periscope Light-Ray Paths & Kaleidoscope Symmetry</p>
+        </div>
+      </div>
+
+      <!-- Controls & Language Toggle -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <!-- Language Switcher Button -->
+        <button id="lang-toggle-btn" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all text-indigo-300 shadow-sm">
+          <i data-lucide="languages" class="w-4 h-4"></i>
+          <span id="lang-label">Bahasa Melayu (BM)</span>
+        </button>
+        
+        <!-- Info Help Modal Trigger -->
+        <button id="info-btn" class="p-2 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 hover:text-white transition-all" title="Help Guide">
+          <i data-lucide="help-circle" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-7xl mx-auto w-full p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+    
+    <!-- LEFT SIDE: ACTIVE APPLICATION VIEWER (Takes 7/12 cols) -->
+    <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
+      
+      <!-- Tabs for Application Selection -->
+      <div class="bg-slate-950 p-1.5 rounded-xl border border-slate-800 flex gap-2">
+        <button id="tab-periscope" onclick="switchApp('periscope')" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md">
+          <i data-lucide="eye" class="w-4 h-4 text-indigo-300"></i>
+          <span class="tab-label" data-en="Periscope Simulation" data-bm="Simulasi Periskop">Periscope Simulation</span>
+        </button>
+        <button id="tab-kaleidoscope" onclick="switchApp('kaleidoscope')" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+          <i data-lucide="grid" class="w-4 h-4 text-emerald-400"></i>
+          <span class="tab-label" data-en="Kaleidoscope Toy" data-bm="Mainan Kaleidoskop">Kaleidoscope Toy</span>
+        </button>
+      </div>
+
+      <!-- Live Physics Canvas Card -->
+      <div class="bg-slate-950 rounded-2xl border border-slate-800 flex flex-col relative overflow-hidden group shadow-lg min-h-[420px] md:min-h-[520px]">
+        <!-- Interactive Tip Indicator -->
+        <div class="absolute top-3 left-3 bg-slate-900/90 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs text-slate-300 flex items-center gap-2 pointer-events-none z-10 shadow-sm backdrop-blur">
+          <span class="flex h-2 w-2 relative">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+          </span>
+          <span id="txt-canvas-tip">Drag elements to observe physical changes!</span>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="flex-grow w-full relative h-[420px] md:h-[520px] bg-slate-950">
+          <canvas id="appCanvas" class="absolute inset-0 block w-full h-full cursor-pointer"></canvas>
+        </div>
+
+        <!-- Bottom Legend bar -->
+        <div class="bg-slate-900/80 border-t border-slate-800 px-4 py-2 flex flex-wrap gap-4 text-xs text-slate-400 items-center justify-between">
+          <div id="periscope-legend" class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5">
+              <span class="w-3.5 h-1 bg-yellow-400 rounded-full inline-block"></span>
+              <span data-en="Light Ray" data-bm="Sinar Cahaya">Light Ray</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-3.5 h-1 bg-sky-400 rounded-full inline-block"></span>
+              <span data-en="Mirror (45°)" data-bm="Cermin (45°)">Mirror (45°)</span>
+            </span>
+          </div>
+          <div id="kaleidoscope-legend" class="hidden items-center gap-4">
+            <span class="flex items-center gap-1.5">
+              <span class="w-3.5 h-1 bg-pink-500 rounded-full inline-block"></span>
+              <span data-en="Beads" data-bm="Manik-Manik">Beads</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-3.5 h-1 bg-indigo-400 rounded-full inline-block"></span>
+              <span data-en="Mirrored Patterns" data-bm="Corak Cermin">Mirrored Patterns</span>
+            </span>
+          </div>
+          <button id="reset-canvas-btn" onclick="resetToDefaults()" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-all">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            <span data-en="Reset" data-bm="Set Semula">Reset</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE: CONTROL PANEL & DATA READOUTS (Takes 5/12 cols) -->
+    <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-5">
+      
+      <!-- PERISCOPE OPTIONS PANEL -->
+      <div id="periscope-panel" class="bg-slate-950 rounded-2xl border border-slate-800 p-5 shadow-lg flex flex-col gap-5">
+        <h2 class="text-base font-bold text-white flex items-center gap-2 pb-3 border-b border-slate-800">
+          <i data-lucide="eye" class="w-5 h-5 text-indigo-400"></i>
+          <span id="txt-periscope-settings">Periscope Settings</span>
+        </h2>
+
+        <!-- Slider 1: Target Sailboat Height -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-slate-300" id="lbl-target-height">Target Height (Object)</span>
+            <span id="val-target-height" class="font-mono font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">High</span>
+          </div>
+          <input type="range" id="input-target-y" min="50" max="220" value="100" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+        </div>
+
+        <!-- Slider 2: Wall Obstacle Height -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-slate-300" id="lbl-wall-height">Obstacle Wall Height</span>
+            <span id="val-wall-height" class="font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Medium</span>
+          </div>
+          <input type="range" id="input-wall-h" min="100" max="260" value="180" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+        </div>
+
+        <!-- Physics concept explanation -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-300 space-y-2">
+          <h3 class="font-bold text-indigo-300 flex items-center gap-1">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+            <span id="lbl-how-it-works">How a Periscope Works:</span>
+          </h3>
+          <p id="txt-how-it-works-desc">
+            Two plane mirrors are fixed at an angle of 45° to the walls of the periscope. Light from the object hits the upper mirror at 45° and reflects down at 90°. It then hits the lower mirror at 45° and reflects horizontally into the observer's eye, allowing them to see over high obstacles.
+          </p>
+        </div>
+      </div>
+
+      <!-- KALEIDOSCOPE OPTIONS PANEL -->
+      <div id="kaleidoscope-panel" class="hidden bg-slate-950 rounded-2xl border border-slate-800 p-5 shadow-lg flex flex-col gap-5">
+        <h2 class="text-base font-bold text-white flex items-center gap-2 pb-3 border-b border-slate-800">
+          <i data-lucide="grid" class="w-5 h-5 text-emerald-400"></i>
+          <span id="txt-kaleidoscope-settings">Kaleidoscope Settings</span>
+        </h2>
+
+        <!-- Bead Presets Selection -->
+        <div class="space-y-2">
+          <span class="text-sm font-medium text-slate-300" id="lbl-bead-color">Bead Palette / Colors</span>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setBeads('ocean')" class="py-2 rounded-lg text-xs font-semibold bg-blue-900/30 text-blue-300 border border-blue-500/30 hover:border-blue-500/60 transition-all">
+              Ocean Blue
+            </button>
+            <button onclick="setBeads('rainbow')" class="py-2 rounded-lg text-xs font-semibold bg-purple-900/30 text-purple-300 border border-purple-500/30 hover:border-purple-500/60 transition-all">
+              Rainbow
+            </button>
+            <button onclick="setBeads('candy')" class="py-2 rounded-lg text-xs font-semibold bg-pink-900/30 text-pink-300 border border-pink-500/30 hover:border-pink-500/60 transition-all">
+              Candy Pop
+            </button>
+          </div>
+        </div>
+
+        <!-- Slider: Kaleidoscope Rotation -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-slate-300" id="lbl-rotate-speed">Manual Rotation Angle</span>
+            <span id="val-rotation" class="font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">0°</span>
+          </div>
+          <input type="range" id="input-rotation" min="0" max="360" value="0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+        </div>
+
+        <!-- Bead Count Slider -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium text-slate-300" id="lbl-bead-count">Number of Objects inside</span>
+            <span id="val-bead-count" class="font-mono font-semibold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">12</span>
+          </div>
+          <input type="range" id="input-beads" min="5" max="30" value="12" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+        </div>
+
+        <!-- Physics concept explanation -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-300 space-y-2">
+          <h3 class="font-bold text-emerald-300 flex items-center gap-1">
+            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+            <span id="lbl-kaleido-how">How a Kaleidoscope Works:</span>
+          </h3>
+          <p id="txt-kaleido-how-desc">
+            A kaleidoscope uses three plane mirrors set at 60° to each other to form an equilateral triangular prism chamber. Multiple reflections occur on the mirror surfaces, multiplying the loose beads into an infinite, beautiful symmetrical pattern with 6-fold hexagonal symmetry.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- HELP INFO DIALOG MODAL -->
+  <div id="info-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 transition-colors p-1.5 rounded-lg hover:bg-slate-800">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+        <i data-lucide="book-open" class="text-indigo-400 w-6 h-6"></i>
+        <h2 id="modal-title" class="text-lg font-bold text-white">Mirror Application Science</h2>
+      </div>
+
+      <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
+        <p id="modal-p1">This simulation demonstrates how the physics of reflection from flat plane mirrors is used to solve engineering problems and build toys.</p>
+        
+        <h3 class="font-bold text-white" id="modal-p2">Key Syllabus Concepts:</h3>
+        <ul class="space-y-2.5 list-none pl-1">
+          <li class="flex items-start gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-violet-500 mt-1.5 shrink-0"></span>
+            <div>
+              <strong>Law of Reflection / Hukum Pantulan:</strong><br>
+              <span id="modal-law-1">The angle of incidence ($i$) is always equal to the angle of reflection ($r$). The incident ray, reflected ray, and normal all lie on the same plane.</span>
+            </div>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
+            <div>
+              <strong>Periscope Path:</strong><br>
+              <span id="modal-law-2">By positioning two mirrors parallel to each other at 45° angles, light deviates 180° in total direction while shifting vertically, bypassing blockades.</span>
+            </div>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></span>
+            <div>
+              <strong>Kaleidoscope Patterns:</strong><br>
+              <span id="modal-law-3">Three mirrors arranged at 60° generate infinitely repeating 2D patterns. Rotation shifts the loose beads, dynamically changing the optical matrix.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="border-t border-slate-800 pt-3 flex justify-end">
+        <button id="modal-ok-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2 rounded-xl transition-all shadow-md">
+          Let's Start!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p id="txt-footer-author">Designed for Physics & Optics Classrooms. Free to use.</p>
+      <p>&copy; 2026 Physics Visualizer Lab. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT FOR SIMULATOR APPLICATIONS -->
+  <script>
+    // Dictionary translations
+    const dict = {
+      en: {
+        title: "Mirror Applications Lab",
+        subtitle: "Interactive Periscope Light-Ray Paths & Kaleidoscope Symmetry",
+        langLabel: "Bahasa Melayu (BM)",
+        canvasTip: "Click and drag inside the simulation area!",
+        periscopeSettings: "Periscope Settings",
+        targetHeight: "Target Height (Object)",
+        wallHeight: "Obstacle Wall Height",
+        howItWorks: "How a Periscope Works:",
+        howItWorksDesc: "Two plane mirrors are fixed at an angle of 45° to the walls of the periscope. Light from the object hits the upper mirror at 45° and reflects down at 90°. It then hits the lower mirror at 45° and reflects horizontally into the observer's eye, allowing them to see over high obstacles.",
+        kaleidoscopeSettings: "Kaleidoscope Settings",
+        beadColor: "Bead Palette / Colors",
+        rotateSpeed: "Manual Rotation Angle",
+        beadCount: "Number of Objects inside",
+        kaleidoHow: "How a Kaleidoscope Works:",
+        kaleidoHowDesc: "A kaleidoscope uses three plane mirrors set at 60° to each other to form an equilateral triangular prism chamber. Multiple reflections occur on the mirror surfaces, multiplying the loose beads into an infinite, beautiful symmetrical pattern with 6-fold hexagonal symmetry.",
+        modalTitle: "Mirror Application Science",
+        modalP1: "This simulation demonstrates how the physics of reflection from flat plane mirrors is used to solve engineering problems and build toys.",
+        modalP2: "Key Syllabus Concepts:",
+        modalLaw1: "The angle of incidence (i) is always equal to the angle of reflection (r). The incident ray, reflected ray, and normal all lie on the same plane.",
+        modalLaw2: "By positioning two mirrors parallel to each other at 45° angles, light deviates 180° in total direction while shifting vertically, bypassing blockades.",
+        modalLaw3: "Three mirrors arranged at 60° generate infinitely repeating 2D patterns. Rotation shifts the loose beads, dynamically changing the optical matrix.",
+        modalOk: "Let's Start!",
+        footerAuthor: "Interactive Physics Classrooms • Dual-Language Simulation",
+        boatLabel: "Sailboat (Object)",
+        eyeLabel: "Observer Eye",
+        mirrorLabel: "Plane Mirror (45°)",
+        blockedLabel: "Light Blocked by Wall",
+        successLabel: "Perfect Ray Alignment!"
+      },
+      bm: {
+        title: "Makmal Aplikasi Cermin",
+        subtitle: "Laluan Sinar Periskop Interaktif & Simetri Kaleidoskop",
+        langLabel: "English (EN)",
+        canvasTip: "Klik dan seret di dalam kawasan simulasi!",
+        periscopeSettings: "Tetapan Periskop",
+        targetHeight: "Tinggi Sasaran (Objek)",
+        wallHeight: "Tinggi Dinding Penghalang",
+        howItWorks: "Bagaimana Periskop Berfungsi:",
+        howItWorksDesc: "Dua cermin satah dipasang pada sudut 45° pada dinding periskop. Cahaya dari objek mengenai cermin atas pada sudut 45° dan dipantulkan ke bawah pada sudut 90°. Seterusnya mengenai cermin bawah pada 45° dan memantul melintang terus ke mata pemerhati, membolehkan pandangan melintasi halangan tinggi.",
+        kaleidoscopeSettings: "Tetapan Kaleidoskop",
+        beadColor: "Palet / Warna Manik",
+        rotateSpeed: "Sudut Putaran Manual",
+        beadCount: "Bilangan Objek di dalam",
+        kaleidoHow: "Bagaimana Kaleidoskop Berfungsi:",
+        kaleidoHowDesc: "Kaleidoskop menggunakan tiga cermin satah yang diletakkan pada sudut 60° antara satu sama lain untuk membentuk ruang prisma segi tiga sama sisi. Pantulan berulang berlaku pada permukaan cermin, menggandakan manik longgar kepada corak simetri tanpa had dengan corak heksagon 6 penjuru.",
+        modalTitle: "Sains Aplikasi Cermin",
+        modalP1: "Simulasi ini membuktikan bagaimana hukum pantulan fizikal dari cermin satah digunakan untuk membina jentera kejuruteraan dan mainan saintifik.",
+        modalP2: "Konsep Utama Silibus:",
+        modalLaw1: "Sudut tuju (i) sentiasa sama dengan sudut pantulan (r). Sinar tuju, sinar pantulan, dan garis normal berada pada satah yang sama.",
+        modalLaw2: "Dengan menyusun dua cermin selari antara satu sama lain pada 45°, arah perjalanan cahaya memesong sebanyak 180° secara menegak untuk memintas halangan.",
+        modalLaw3: "Tiga cermin yang disusun pada 60° menghasilkan corak 2D yang berulang tanpa had. Putaran menggerakkan manik bagi menukar matriks optik.",
+        modalOk: "Mulakan Sekarang!",
+        footerAuthor: "Kegunaan Bilik Darjah Fizik • Simulasi Dwibahasa",
+        boatLabel: "Perahu Layar (Objek)",
+        eyeLabel: "Mata Pemerhati",
+        mirrorLabel: "Cermin Satah (45°)",
+        blockedLabel: "Cahaya Dihalang Dinding",
+        successLabel: "Laluan Sinar Berjaya!"
+      }
+    };
+
+    // Application state
+    let currentLanguage = 'en';
+    let currentApp = 'periscope'; // 'periscope' or 'kaleidoscope'
+
+    // Periscope State Variables
+    let targetY = 100;
+    let wallHeight = 180;
+
+    // Kaleidoscope State Variables
+    let beadsType = 'rainbow';
+    let rotationAngle = 0;
+    let beadCount = 12;
+    let beadsArray = [];
+
+    // Canvas Elements
+    const canvas = document.getElementById('appCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Controls Input Selectors
+    const inputTargetY = document.getElementById('input-target-y');
+    const inputWallH = document.getElementById('input-wall-h');
+    const inputRotation = document.getElementById('input-rotation');
+    const inputBeads = document.getElementById('input-beads');
+
+    const valTargetHeight = document.getElementById('val-target-height');
+    const valWallHeight = document.getElementById('val-wall-height');
+    const valRotation = document.getElementById('val-rotation');
+    const valBeadCount = document.getElementById('val-bead-count');
+
+    // Init App
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+      resizeCanvas();
+
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        drawCurrentApp();
+      });
+
+      // Periscope inputs
+      inputTargetY.addEventListener('input', (e) => {
+        targetY = parseFloat(e.target.value);
+        updateUI();
+        drawCurrentApp();
+      });
+      inputWallH.addEventListener('input', (e) => {
+        wallHeight = parseFloat(e.target.value);
+        updateUI();
+        drawCurrentApp();
+      });
+
+      // Kaleidoscope inputs
+      inputRotation.addEventListener('input', (e) => {
+        rotationAngle = parseFloat(e.target.value);
+        updateUI();
+        drawCurrentApp();
+      });
+      inputBeads.addEventListener('input', (e) => {
+        beadCount = parseInt(e.target.value);
+        generateRandomBeads();
+        updateUI();
+        drawCurrentApp();
+      });
+
+      // Language Toggle
+      document.getElementById('lang-toggle-btn').addEventListener('click', toggleLanguage);
+
+      // Modal Events
+      const modal = document.getElementById('info-modal');
+      document.getElementById('info-btn').addEventListener('click', () => modal.classList.replace('hidden', 'flex'));
+      document.getElementById('close-modal-btn').addEventListener('click', () => modal.classList.replace('flex', 'hidden'));
+      document.getElementById('modal-ok-btn').addEventListener('click', () => modal.classList.replace('flex', 'hidden'));
+
+      // Start with Periscope defaults
+      resetToDefaults();
+      setupCanvasInteractions();
+    });
+
+    // Handle high density retina displays
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      ctx.scale(dpr, dpr);
+    }
+
+    // Reset simulator defaults
+    function resetToDefaults() {
+      if (currentApp === 'periscope') {
+        targetY = 100;
+        wallHeight = 180;
+        inputTargetY.value = targetY;
+        inputWallH.value = wallHeight;
+      } else {
+        rotationAngle = 0;
+        beadCount = 12;
+        inputRotation.value = rotationAngle;
+        inputBeads.value = beadCount;
+        generateRandomBeads();
+      }
+      updateUI();
+      drawCurrentApp();
+    }
+
+    // Toggle Multi-language UI texts
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'bm' : 'en';
+      const toggleLabel = currentLanguage === 'en' ? 'Bahasa Melayu (BM)' : 'English (EN)';
+      document.getElementById('lang-label').innerText = toggleLabel;
+
+      // Translate static titles
+      document.getElementById('txt-title').innerText = dict[currentLanguage].title;
+      document.getElementById('txt-subtitle').innerText = dict[currentLanguage].subtitle;
+      document.getElementById('txt-canvas-tip').innerText = dict[currentLanguage].canvasTip;
+
+      // Periscope panel
+      document.getElementById('txt-periscope-settings').innerText = dict[currentLanguage].periscopeSettings;
+      document.getElementById('lbl-target-height').innerText = dict[currentLanguage].targetHeight;
+      document.getElementById('lbl-wall-height').innerText = dict[currentLanguage].wallHeight;
+      document.getElementById('lbl-how-it-works').innerText = dict[currentLanguage].howItWorks;
+      document.getElementById('txt-how-it-works-desc').innerText = dict[currentLanguage].howItWorksDesc;
+
+      // Kaleidoscope panel
+      document.getElementById('txt-kaleidoscope-settings').innerText = dict[currentLanguage].kaleidoscopeSettings;
+      document.getElementById('lbl-bead-color').innerText = dict[currentLanguage].beadColor;
+      document.getElementById('lbl-rotate-speed').innerText = dict[currentLanguage].rotateSpeed;
+      document.getElementById('lbl-bead-count').innerText = dict[currentLanguage].beadCount;
+      document.getElementById('lbl-kaleido-how').innerText = dict[currentLanguage].kaleidoHow;
+      document.getElementById('txt-kaleido-how-desc').innerText = dict[currentLanguage].kaleidoHowDesc;
+
+      // Modal
+      document.getElementById('modal-title').innerText = dict[currentLanguage].modalTitle;
+      document.getElementById('modal-p1').innerText = dict[currentLanguage].modalP1;
+      document.getElementById('modal-p2').innerText = dict[currentLanguage].modalP2;
+      document.getElementById('modal-law-1').innerText = dict[currentLanguage].modalLaw1;
+      document.getElementById('modal-law-2').innerText = dict[currentLanguage].modalLaw2;
+      document.getElementById('modal-law-3').innerText = dict[currentLanguage].modalLaw3;
+      document.getElementById('modal-ok-btn').innerText = dict[currentLanguage].modalOk;
+      document.getElementById('txt-footer-author').innerText = dict[currentLanguage].footerAuthor;
+
+      // Translate active tab buttons
+      const tabLabels = document.querySelectorAll('.tab-label');
+      tabLabels.forEach(label => {
+        const en = label.getAttribute('data-en');
+        const bm = label.getAttribute('data-bm');
+        label.innerText = currentLanguage === 'en' ? en : bm;
+      });
+
+      updateUI();
+      drawCurrentApp();
+    }
+
+    // Switch between Periscope and Kaleidoscope views
+    function switchApp(app) {
+      currentApp = app;
+      
+      const tabPeriscope = document.getElementById('tab-periscope');
+      const tabKaleidoscope = document.getElementById('tab-kaleidoscope');
+
+      const panelPeriscope = document.getElementById('periscope-panel');
+      const panelKaleidoscope = document.getElementById('kaleidoscope-panel');
+
+      const legendPeri = document.getElementById('periscope-legend');
+      const legendKale = document.getElementById('kaleidoscope-legend');
+
+      if (app === 'periscope') {
+        tabPeriscope.className = "flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md";
+        tabKaleidoscope.className = "flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+        panelPeriscope.classList.remove('hidden');
+        panelKaleidoscope.classList.add('hidden');
+        legendPeri.classList.remove('hidden');
+        legendKale.classList.add('hidden');
+      } else {
+        tabKaleidoscope.className = "flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md";
+        tabPeriscope.className = "flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+        panelPeriscope.classList.add('hidden');
+        panelKaleidoscope.classList.remove('hidden');
+        legendPeri.classList.add('hidden');
+        legendKale.classList.remove('hidden');
+      }
+
+      resetToDefaults();
+    }
+
+    // Update Slider numeric labels
+    function updateUI() {
+      // Periscope
+      const targetLabel = targetY < 100 ? (currentLanguage === 'en' ? "High" : "Tinggi") : 
+                          (targetY > 170 ? (currentLanguage === 'en' ? "Low" : "Rendah") : 
+                          (currentLanguage === 'en' ? "Medium" : "Sederhana"));
+      valTargetHeight.innerText = targetLabel;
+
+      const wallLabel = wallHeight < 140 ? (currentLanguage === 'en' ? "Low" : "Rendah") :
+                        (wallHeight > 220 ? (currentLanguage === 'en' ? "High" : "Tinggi") :
+                        (currentLanguage === 'en' ? "Medium" : "Sederhana"));
+      valWallHeight.innerText = wallLabel;
+
+      // Kaleidoscope
+      valRotation.innerText = `${rotationAngle.toFixed(0)}°`;
+      valBeadCount.innerText = beadCount;
+    }
+
+    // Set bead color preset styles
+    function setBeads(type) {
+      beadsType = type;
+      generateRandomBeads();
+      drawCurrentApp();
+    }
+
+    // Generate random seed bead coordinates inside triangular segment boundary
+    function generateRandomBeads() {
+      beadsArray = [];
+      // An equilateral triangle slice inside a 60-degree sector
+      // We store polar coordinates relative to the kaleidoscope center
+      for (let i = 0; i < beadCount; i++) {
+        // Radius within central radius band
+        const r = 20 + Math.random() * 95;
+        // Angle strictly within 0 and 60 degrees (0 to pi/3)
+        const phi = (5 + Math.random() * 50) * Math.PI / 180;
+        
+        let color = '#ffffff';
+        if (beadsType === 'ocean') {
+          const blueColors = ['#60a5fa', '#3b82f6', '#1d4ed8', '#06b6d4', '#e0f2fe'];
+          color = blueColors[Math.floor(Math.random() * blueColors.length)];
+        } else if (beadsType === 'rainbow') {
+          const rainbowColors = ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa', '#ec4899'];
+          color = rainbowColors[Math.floor(Math.random() * rainbowColors.length)];
+        } else {
+          // Candy pop
+          const candyColors = ['#f472b6', '#fda4af', '#fca5a5', '#fb7185', '#db2777', '#f43f5e'];
+          color = candyColors[Math.floor(Math.random() * candyColors.length)];
+        }
+
+        const size = 5 + Math.random() * 10;
+        beadsArray.push({ r, phi, color, size, shape: i % 3 });
+      }
+    }
+
+    // Master router redraw call
+    function drawCurrentApp() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const w = canvas.width / (window.devicePixelRatio || 1);
+      const h = canvas.height / (window.devicePixelRatio || 1);
+
+      if (currentApp === 'periscope') {
+        drawPeriscope(w, h);
+      } else {
+        drawKaleidoscope(w, h);
+      }
+    }
+
+    // --- PERISCOPE RENDERING ---
+    function drawPeriscope(w, h) {
+      // Background Grid
+      drawGrid(w, h);
+
+      // Coordinates
+      const pLeft = w * 0.45;
+      const pWidth = 60;
+      const pRight = pLeft + pWidth;
+
+      const pTopY = h * 0.15;
+      const pBottomY = h * 0.8;
+      const pCenterUpperY = pTopY + pWidth/2;
+      const pCenterLowerY = pBottomY - pWidth/2;
+
+      // Obstacle coordinates
+      const wallX = pLeft - 50;
+      const wallW = 35;
+
+      // Draw Obstacle Wall (brick styling)
+      ctx.fillStyle = '#475569';
+      ctx.beginPath();
+      ctx.rect(wallX, h - wallHeight, wallW, wallHeight);
+      ctx.fill();
+
+      // Brick pattern horizontal lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      for (let y = h - wallHeight; y < h; y += 12) {
+        ctx.beginPath();
+        ctx.moveTo(wallX, y);
+        ctx.lineTo(wallX + wallW, y);
+        ctx.stroke();
+      }
+
+      // Draw Water/Ground underneath
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, h - 30, w, 30);
+      ctx.beginPath();
+      ctx.strokeStyle = '#334155';
+      ctx.moveTo(0, h - 30);
+      ctx.lineTo(w, h - 30);
+      ctx.stroke();
+
+      // Draw Target Sailboat (Object on the left)
+      const objX = w * 0.12;
+      drawSailboat(objX, targetY);
+
+      // Draw Observer Eye (on the right)
+      const eyeX = w * 0.82;
+      const eyeY = pCenterLowerY;
+      drawObserverEye(eyeX, eyeY);
+
+      // Draw Periscope Body
+      ctx.fillStyle = '#1e293b';
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 3.5;
+
+      ctx.beginPath();
+      // Outer shell boundary mapping
+      ctx.moveTo(pLeft - pWidth, pCenterUpperY - pWidth/2); // Top open inlet left
+      ctx.lineTo(pRight, pCenterUpperY - pWidth/2); // Top roof right
+      ctx.lineTo(pRight, pCenterLowerY + pWidth/2); // Right side down to bottom outlet
+      ctx.lineTo(pRight + pWidth, pCenterLowerY + pWidth/2); // Bottom outlet roof right
+      ctx.lineTo(pRight + pWidth, pCenterLowerY - pWidth/2); // Bottom outlet floor right
+      ctx.lineTo(pLeft, pCenterLowerY - pWidth/2); // Lower vertical inner corner
+      ctx.lineTo(pLeft, pCenterUpperY + pWidth/2); // Upper vertical inner corner
+      ctx.lineTo(pLeft - pWidth, pCenterUpperY + pWidth/2); // Top inlet floor left
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Draw Top Glass Inlet & Bottom Glass Outlet Openings
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+
+      ctx.fillRect(pLeft - pWidth, pCenterUpperY - pWidth/2 + 2, 4, pWidth - 4);
+      ctx.fillRect(pRight + pWidth - 4, pCenterLowerY - pWidth/2 + 2, 4, pWidth - 4);
+
+      // --- THE TWO PARALLEL PLANE MIRRORS (45 degrees) ---
+      ctx.strokeStyle = '#38bdf8'; // neon cyan
+      ctx.lineWidth = 4;
+
+      // Top mirror: (pLeft, pCenterUpperY - pWidth/2) to (pRight, pCenterUpperY + pWidth/2)
+      ctx.beginPath();
+      ctx.moveTo(pLeft, pCenterUpperY - pWidth/2);
+      ctx.lineTo(pRight, pCenterUpperY + pWidth/2);
+      ctx.stroke();
+
+      // Bottom mirror: (pLeft, pCenterLowerY - pWidth/2) to (pRight, pCenterLowerY + pWidth/2)
+      ctx.beginPath();
+      ctx.moveTo(pLeft, pCenterLowerY - pWidth/2);
+      ctx.lineTo(pRight, pCenterLowerY + pWidth/2);
+      ctx.stroke();
+
+      // Mirror Labels
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 9px system-ui';
+      ctx.fillText(dict[currentLanguage].mirrorLabel, pRight + 10, pCenterUpperY - 10);
+      ctx.fillText(dict[currentLanguage].mirrorLabel, pRight + 10, pCenterLowerY - 10);
+
+      // --- LIGHT RAY TRACING ---
+      const rayColor = '#fbbf24'; // beautiful amber
+      ctx.lineWidth = 2.5;
+
+      // Incident ray from sailboat center horizontally to the top mirror
+      const raySourceY = targetY - 10;
+      const incomingRayReachedX = pLeft + (raySourceY - (pCenterUpperY - pWidth/2)); // Intersection on 45 deg mirror y-x diagonal
+
+      ctx.beginPath();
+      ctx.strokeStyle = rayColor;
+      ctx.setLineDash([]);
+      ctx.moveTo(objX, raySourceY);
+      
+      // Determine if ray is physically blocked by the obstacle wall!
+      const wallTopY = h - wallHeight;
+      const isBlocked = (raySourceY > wallTopY) && (objX < wallX);
+
+      if (isBlocked) {
+        // Path cuts short at wall face
+        ctx.lineTo(wallX, raySourceY);
+        ctx.stroke();
+
+        // Draw collision spark
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(wallX, raySourceY, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Informative notification badge
+        ctx.fillStyle = '#f87171';
+        ctx.font = 'bold 11px system-ui';
+        ctx.fillText(dict[currentLanguage].blockedLabel, wallX - 10, raySourceY - 12);
+      } else {
+        // Travels perfectly into periscope opening
+        ctx.lineTo(incomingRayReachedX, raySourceY);
+        ctx.stroke();
+        drawVectorArrow(ctx, objX, raySourceY, incomingRayReachedX, raySourceY, rayColor);
+
+        // First reflection: down vertically
+        const bottomIntersectY = pCenterLowerY - pWidth/2 + (incomingRayReachedX - pLeft);
+        ctx.beginPath();
+        ctx.moveTo(incomingRayReachedX, raySourceY);
+        ctx.lineTo(incomingRayReachedX, bottomIntersectY);
+        ctx.stroke();
+        drawVectorArrow(ctx, incomingRayReachedX, raySourceY, incomingRayReachedX, bottomIntersectY, rayColor);
+
+        // Second reflection: horizontally right towards observer eye
+        ctx.beginPath();
+        ctx.moveTo(incomingRayReachedX, bottomIntersectY);
+        ctx.lineTo(eyeX, bottomIntersectY);
+        ctx.stroke();
+        drawVectorArrow(ctx, incomingRayReachedX, bottomIntersectY, eyeX, bottomIntersectY, rayColor);
+
+        // Render Success Highlight
+        ctx.fillStyle = '#34d399';
+        ctx.font = 'bold 11px system-ui';
+        ctx.fillText(dict[currentLanguage].successLabel, eyeX - 60, bottomIntersectY - 15);
+      }
+    }
+
+    // --- KALEIDOSCOPE RENDERING ---
+    function drawKaleidoscope(w, h) {
+      const centerX = w * 0.5;
+      const centerY = h * 0.48;
+      const radius = Math.min(w, h) * 0.42;
+
+      // Draw dark background board
+      ctx.fillStyle = '#0b0f19';
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw overall boundary circle (representing the cylindrical tube view)
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw a clip path equilateral triangle (the real physical mirror chamber section)
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.clip();
+
+      const radRotation = (rotationAngle * Math.PI) / 180;
+
+      // Draw the 6 repeating sectors (symmetry matrix)
+      for (let sector = 0; sector < 6; sector++) {
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        // Each sector covers 60 degrees (pi / 3 radians)
+        const baseAngle = sector * Math.PI / 3 + radRotation;
+        ctx.rotate(baseAngle);
+
+        // Even vs odd sectors reflection mirror flip
+        const isFlipped = sector % 2 === 1;
+        if (isFlipped) {
+          ctx.scale(1, -1);
+        }
+
+        // Draw physical colored beads replicated inside this active triangular zone
+        beadsArray.forEach(bead => {
+          const beadX = bead.r * Math.cos(bead.phi);
+          const beadY = bead.r * Math.sin(bead.phi);
+
+          ctx.fillStyle = bead.color;
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = isFlipped ? 0.8 : 1.0; // slightly dim reflected duplicates for educational depth
+
+          ctx.beginPath();
+          if (bead.shape === 0) {
+            // Circular bead
+            ctx.arc(beadX, beadY, bead.size, 0, Math.PI * 2);
+          } else if (bead.shape === 1) {
+            // Square bead
+            ctx.rect(beadX - bead.size, beadY - bead.size, bead.size * 2, bead.size * 2);
+          } else {
+            // Triangular crystal star
+            ctx.moveTo(beadX, beadY - bead.size);
+            ctx.lineTo(beadX + bead.size, beadY + bead.size);
+            ctx.lineTo(beadX - bead.size, beadY + bead.size);
+            ctx.closePath();
+          }
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        ctx.restore();
+      }
+
+      // Draw mirror boundaries lines (equilateral tri-prism grid representation)
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i < 6; i++) {
+        const lineAngle = i * Math.PI / 3 + radRotation;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX + radius * Math.cos(lineAngle), centerY + radius * Math.sin(lineAngle));
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // --- GRAPHIC VECTOR GENERATORS ---
+
+    function drawGrid(w, h) {
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < w; x += 25) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 25) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+    }
+
+    function drawSailboat(x, y) {
+      ctx.save();
+      // Wooden brown body
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.moveTo(x - 20, y);
+      ctx.lineTo(x + 20, y);
+      ctx.lineTo(x + 12, y + 10);
+      ctx.lineTo(x - 12, y + 10);
+      ctx.closePath();
+      ctx.fill();
+
+      // White Mast Sail
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 2);
+      ctx.lineTo(x, y - 22);
+      ctx.lineTo(x - 14, y - 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Red Flag
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 22);
+      ctx.lineTo(x + 8, y - 18);
+      ctx.lineTo(x, y - 14);
+      ctx.closePath();
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 9px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(dict[currentLanguage].boatLabel, x, y + 24);
+
+      ctx.restore();
+    }
+
+    function drawObserverEye(x, y) {
+      ctx.save();
+      // Draw outer eyeball arc
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(x, y, 16, 1.15 * Math.PI, 0.85 * Math.PI, true);
+      ctx.stroke();
+
+      // Pupil circle
+      ctx.fillStyle = '#38bdf8'; // Blue eye
+      ctx.beginPath();
+      ctx.arc(x - 4, y, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inner dark iris pupil
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(x - 6, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyelashes visual indicator
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x + 10, y - 12);
+      ctx.lineTo(x + 18, y - 18);
+      ctx.moveTo(x + 12, y + 12);
+      ctx.lineTo(x + 20, y + 18);
+      ctx.stroke();
+
+      // Label text
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 9px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(dict[currentLanguage].eyeLabel, x, y + 30);
+
+      ctx.restore();
+    }
+
+    function drawVectorArrow(ctxTarget, fromX, fromY, toX, toY, color) {
+      const angle = Math.atan2(toY - fromY, toX - fromX);
+      const midX = (fromX + toX) / 2;
+      const midY = (fromY + toY) / 2;
+
+      ctxTarget.save();
+      ctxTarget.fillStyle = color;
+      ctxTarget.beginPath();
+      ctxTarget.translate(midX, midY);
+      ctxTarget.rotate(angle);
+      // Small neat arrowhead
+      ctxTarget.moveTo(-5, -4);
+      ctxTarget.lineTo(5, 0);
+      ctxTarget.lineTo(-5, 4);
+      ctxTarget.fill();
+      ctxTarget.restore();
+    }
+
+    // Handle touch & mouse drags to move periscope heights in real-time
+    function setupCanvasInteractions() {
+      let isInteracting = false;
+
+      const handleStart = (clientX, clientY) => {
+        if (currentApp !== 'periscope') return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = clientX - rect.left;
+        const mouseY = clientY - rect.top;
+
+        // Check proximity to Sailboat height or Wall boundary
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const objX = w * 0.12;
+        const wallX = (w * 0.45) - 50;
+
+        if (Math.abs(mouseX - objX) < 40 && Math.abs(mouseY - targetY) < 40) {
+          isInteracting = 'target';
+        } else if (Math.abs(mouseX - (wallX + 17)) < 40) {
+          isInteracting = 'wall';
+        }
+      };
+
+      const handleMove = (clientX, clientY) => {
+        if (!isInteracting) return;
+        const rect = canvas.getBoundingClientRect();
+        const mouseY = clientY - rect.top;
+        const h = canvas.height / (window.devicePixelRatio || 1);
+
+        if (isInteracting === 'target') {
+          targetY = Math.max(40, Math.min(240, mouseY));
+          inputTargetY.value = targetY;
+        } else if (isInteracting === 'wall') {
+          wallHeight = Math.max(80, Math.min(280, h - mouseY));
+          inputWallH.value = wallHeight;
+        }
+        updateUI();
+        drawCurrentApp();
+      };
+
+      canvas.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY));
+      canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+      canvas.addEventListener('mouseup', () => isInteracting = false);
+      canvas.addEventListener('mouseleave', () => isInteracting = false);
+
+      // Touch alternatives
+      canvas.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        handleStart(touch.clientX, touch.clientY);
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        handleMove(touch.clientX, touch.clientY);
+        e.preventDefault();
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', () => isInteracting = false);
+    }
+  </script>
+</body>
+</html>
